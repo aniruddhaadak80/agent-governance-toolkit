@@ -3,12 +3,12 @@
 """Tests for the API gateway policy provider endpoint.
 
 Covers:
-* ``PolicyProviderHandler.handle_check`` — policy evaluation via REST
-* ``PolicyProviderHandler.handle_health`` — health-check response
-* ``PolicyProviderHandler.handle_policies`` — policy listing
-* ``to_asgi_app`` — raw ASGI protocol compliance
+* ``PolicyProviderHandler.handle_check`` â€” policy evaluation via REST
+* ``PolicyProviderHandler.handle_health`` â€” health-check response
+* ``PolicyProviderHandler.handle_policies`` â€” policy listing
+* ``to_asgi_app`` â€” raw ASGI protocol compliance
 * Error handling for malformed requests
-* Policy engine failures — errors, never decisions
+* Policy engine failures â€” errors, never decisions
 """
 
 from __future__ import annotations
@@ -25,7 +25,7 @@ from agentmesh.gateway.policy_provider import PolicyProviderHandler
 
 
 # ---------------------------------------------------------------------------
-# Helpers — lightweight mock objects
+# Helpers â€” lightweight mock objects
 # ---------------------------------------------------------------------------
 
 
@@ -131,7 +131,7 @@ async def _asgi_request(
 
 
 class TestHandleCheck:
-    """Tests for POST /check — policy evaluation."""
+    """Tests for POST /check â€” policy evaluation."""
 
     def test_allowed_decision(self):
         handler = _make_handler(decision=_StubDecision(allowed=True, action="allow"))
@@ -187,6 +187,30 @@ class TestHandleCheck:
         handler = _make_handler()
         result = handler.handle_check({})
         assert result["allowed"] is True
+
+    def test_engine_exception_returns_fail_closed(self):
+        engine = _make_engine()
+        engine.evaluate = MagicMock(side_effect=RuntimeError("backend down"))
+        handler = PolicyProviderHandler(engine)
+        result = handler.handle_check(
+            {"agent_id": "agent-7", "action": "read", "context": {}}
+        )
+        assert result["allowed"] is False
+        assert result["decision"] == "error"
+        assert "RuntimeError" in result["reason"]
+        assert result["trust_score"] is None
+        assert "evaluation_ms" in result
+
+    def test_engine_exception_logs_audit(self):
+        engine = _make_engine()
+        engine.evaluate = MagicMock(side_effect=RuntimeError("backend down"))
+        handler = PolicyProviderHandler(engine, audit_logger=MagicMock())
+        handler.handle_check(
+            {"agent_id": "agent-8", "action": "delete", "context": {}}
+        )
+        handler.audit_logger.log.assert_called_once_with(
+            "agent-8", "delete", "error"
+        )
 
 
 # =========================================================================
@@ -306,7 +330,7 @@ class TestAsgiApp:
 
 
 class TestEngineFailure:
-    """Tests for policy engine exceptions — failures are errors, not decisions."""
+    """Tests for policy engine exceptions â€” failures are errors, not decisions."""
 
     def test_handle_check_propagates_engine_exception(self):
         """``handle_check`` has no failure channel: the exception must surface,
@@ -321,8 +345,7 @@ class TestEngineFailure:
         handler = _make_handler(engine_error=RuntimeError("backend down"))
         app = handler.to_asgi_app()
         payload = json.dumps(
-            {"agent_id": "a1", "action": "read", "context": {}}
-        ).encode()
+            {"agent_id": "a1", "action": "read", "context": {}}        ).encode()
         status, body = asyncio.run(
             _asgi_request(app, "POST", "/check", payload)
         )
