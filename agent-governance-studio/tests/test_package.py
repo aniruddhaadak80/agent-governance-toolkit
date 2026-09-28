@@ -51,9 +51,11 @@ def test_frontend_identity_and_non_empty_validation_commands() -> None:
     assert package["dependencies"]["react"].startswith("18.")
     assert package["dependencies"]["react-dom"].startswith("18.")
     assert "@tanstack/react-query" in package["dependencies"]
-    assert {"vite", "typescript", "@tailwindcss/vite", "tailwindcss"} <= (
+    assert {"vite", "typescript", "postcss", "tailwindcss"} <= (
         package["devDependencies"].keys()
     )
+    assert package["devDependencies"]["tailwindcss"].startswith("3.")
+    assert "@tailwindcss/vite" not in package["devDependencies"]
     assert package["scripts"] == {
         "lint": "eslint . --max-warnings=0",
         "test": "vitest run",
@@ -77,9 +79,7 @@ def test_frontend_lockfile_pins_and_verifies_the_declared_dependencies() -> None
     for name, details in lock["packages"].items():
         if not name:
             continue
-        if details.get("inBundle"):
-            assert name.startswith("node_modules/@tailwindcss/oxide-wasm32-wasi/node_modules/")
-            continue
+        assert not details.get("inBundle"), name
         package = name.rsplit("node_modules/", 1)[-1]
         version = details["version"]
         resolved = details["resolved"]

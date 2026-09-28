@@ -1323,6 +1323,13 @@ jobs:
           npm run lint --prefix agent-governance-studio/web
           npm test --prefix agent-governance-studio/web -- --reporter=default --reporter=junit --outputFile.junit=/tmp/agt-studio-frontend.xml
           npm run build --prefix agent-governance-studio/web
+          python - <<'PY'
+          from pathlib import Path
+
+          styles = list(Path("agent-governance-studio/web/dist/assets").glob("*.css"))
+          assert len(styles) == 1, styles
+          assert ".text-3xl" in styles[0].read_text(encoding="utf-8")
+          PY
       - name: Require executed Studio tests
         run: |
           python - <<'PY'
