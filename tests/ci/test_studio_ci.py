@@ -75,6 +75,6 @@ def test_studio_dependabot_inherits_the_existing_npm_policy() -> None:
 def test_studio_has_explicit_maintainer_ownership() -> None:
     owners = (REPO_ROOT / ".github" / "CODEOWNERS").read_text(encoding="utf-8")
     assert (
-        "/agent-governance-studio/ @MohammadHaroonAbuomar @liamcrumm"
+        "/agent-governance-studio/ @MohammadHaroonAbuomar @liamcrumm @prayagupa"
         in owners.splitlines()
     )

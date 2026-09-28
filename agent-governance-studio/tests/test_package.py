@@ -7,6 +7,7 @@ import importlib
 import json
 import tomllib
 from pathlib import Path
+from urllib.parse import urlparse
 
 PACKAGE_ROOT = Path(__file__).resolve().parents[1]
 REPO_ROOT = PACKAGE_ROOT.parent
@@ -74,6 +75,19 @@ def test_frontend_lockfile_pins_and_verifies_the_declared_dependencies() -> None
     for section in ("dependencies", "devDependencies"):
         assert lock["packages"][""][section] == manifest[section]
     for name, details in lock["packages"].items():
-        if name and not details.get("inBundle"):
-            assert details.get("integrity", "").startswith(("sha1-", "sha512-")), name
-        assert "resolved" not in details
+        if not name:
+            continue
+        if details.get("inBundle"):
+            assert name.startswith("node_modules/@tailwindcss/oxide-wasm32-wasi/node_modules/")
+            continue
+        package = name.rsplit("node_modules/", 1)[-1]
+        version = details["version"]
+        resolved = details["resolved"]
+        parsed = urlparse(resolved)
+        assert parsed.scheme == "https" and parsed.hostname == "registry.npmjs.org"
+        assert not parsed.username and not parsed.password and not parsed.query and not parsed.fragment
+        assert resolved == (
+            f"https://registry.npmjs.org/{package}/-/"
+            f"{package.rsplit('/', 1)[-1]}-{version}.tgz"
+        )
+        assert details["integrity"].startswith("sha512-"), name

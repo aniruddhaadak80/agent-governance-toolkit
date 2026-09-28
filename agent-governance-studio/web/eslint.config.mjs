@@ -10,7 +10,11 @@ export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    files: ["**/*.{ts,tsx}"],
-    languageOptions: { globals: { ...globals.browser, ...globals.node } },
+    files: ["src/**/*.{ts,tsx}"],
+    languageOptions: { globals: globals.browser },
+  },
+  {
+    files: ["vite.config.ts"],
+    languageOptions: { globals: globals.node },
   },
 );

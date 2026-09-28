@@ -22,9 +22,15 @@ Studio dependency graph to migrate.
 | `eslint`, `@eslint/js`, `typescript-eslint`, `globals` | 9.32.0, 9.32.0, 8.39.1, 16.3.0 | Enforce a non-no-op frontend lint gate. |
 | `@types/react`, `@types/react-dom`, `@types/node` | 18.3.27, 18.3.7, 22.18.6 | Typecheck the browser and build configuration. |
 
-The committed lockfile records transitive versions and integrity hashes for
-reproducible `npm ci` installation. The Python Studio package introduces no
-runtime dependencies.
+The committed lockfile records transitive versions, upstream npm tarball URLs,
+and SHA-512 integrity hashes for reproducible `npm ci --ignore-scripts`
+installation. Since direct npm registry access was unavailable locally, each
+registry package tarball was fetched through the configured Microsoft feed;
+its bytes matched the initial lockfile hash, and its SHA-512 digest was then
+recorded. The upstream registry integrity gate must verify those digests and
+URLs independently in CI. Six dependencies bundled inside Tailwind's optional
+WebAssembly archive have no separate registry tarballs. The Python Studio
+package introduces no runtime dependencies.
 
 ## Security advisory relevance
 
