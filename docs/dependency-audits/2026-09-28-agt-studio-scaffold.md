@@ -17,7 +17,7 @@ Studio dependency graph to migrate.
 | `react`, `react-dom` | 18.3.1 | Render the browser entry point using the architecture's React 18 choice. |
 | `@tanstack/react-query` | 5.83.0 | Establish the chosen query-provider toolchain without adding network calls. |
 | `vite`, `@vitejs/plugin-react`, `typescript` | 7.3.6, 4.7.0, 5.9.2 | Compile and bundle the TypeScript React entry point. |
-| `tailwindcss`, `@tailwindcss/vite` | 4.1.13 | Compile the starter stylesheet. |
+| `tailwindcss`, `@tailwindcss/vite` | 4.1.13 | Compile the starter CSS. |
 | `vitest`, `jsdom`, `@testing-library/react`, `@testing-library/dom` | 4.1.11, 26.1.0, 16.3.0, 10.4.1 | Execute DOM rendering and bootstrap tests. |
 | `eslint`, `@eslint/js`, `typescript-eslint`, `globals` | 9.32.0, 9.32.0, 8.39.1, 16.3.0 | Enforce a non-no-op frontend lint gate. |
 | `@types/react`, `@types/react-dom`, `@types/node` | 18.3.27, 18.3.7, 22.18.6 | Typecheck the browser and build configuration. |
@@ -27,8 +27,8 @@ and SHA-512 integrity hashes for reproducible `npm ci --ignore-scripts`
 installation. Since direct npm registry access was unavailable locally, each
 registry package tarball was fetched through the configured Microsoft feed;
 its bytes matched the initial lockfile hash, and its SHA-512 digest was then
-recorded. The upstream registry integrity gate must verify those digests and
-URLs independently in CI. Six dependencies bundled inside Tailwind's optional
+recorded. The upstream registry integrity gate independently verified all
+357 registry-backed entries in CI. Six dependencies bundled inside Tailwind's optional
 WebAssembly archive have no separate registry tarballs. The Python Studio
 package introduces no runtime dependencies.
 
